@@ -29,6 +29,9 @@ allow_versioned_writes = true
 [filter:tempurl]
 use = egg:swift#tempurl
 
+[filter:ape]
+use = egg:ape#middleware
+
 [filter:container_sync]
 use = egg:swift#container_sync
 current = //TEST/SAIO
