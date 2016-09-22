@@ -26,3 +26,13 @@ execute "startmain" do
   command "sudo -u vagrant swift-init start main"
 end
 
+bash "ape-init" do
+  cwd "/home/vagrant"
+  user "vagrant"
+  environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})
+  code <<-EOF
+    source ~/.profile
+    swift post test
+    swift post -m 'Temp-URL-Key: b3968d0207b54ece87cccc06515a89d4'
+  EOF
+end
