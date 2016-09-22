@@ -20,6 +20,16 @@ include_recipe "swift::data"
 include_recipe "swift::configs"
 include_recipe "swift::rings"
 
+bash "ape-middleware" do
+  cwd "/vagrant/ape"
+  user "vagrant"
+  environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})
+  code <<-EOF
+    python setup.py build
+    sudo python setup.py install
+  EOF
+end
+
 # start main
 
 execute "startmain" do
