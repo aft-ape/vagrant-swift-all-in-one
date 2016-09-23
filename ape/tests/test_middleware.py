@@ -13,7 +13,9 @@ class FakeApp(object):
 
 
 class TestApeMiddleware(unittest.TestCase):
-    env = { 'REQUEST_METHOD': 'PUT' }
+    env = { 'REQUEST_METHOD': 'PUT', 'swift.infocache': { 'account/a': {
+        'status': 204, 'container_count': 0, 'total_object_count': 0, 'bytes':
+        0, 'meta': { 'Temp-URL-key': 'b3968d0207b54ece87cccc06515a89d4' } } } }
     def test_valid(self):
         req = Request.blank('/v1/a/c/o?temp_url_sig=69c8a34a67f6c4be3dfcae899b9a184b9df958c6&temp_url_expires=1484539024&max_file_size=1073741824&max_file_size_sig=1fbd08db37f4470a6911ddb2302e2dd5656c4104', self.env, None, 'content')
         mw = ApeMiddleware(FakeApp(), None)

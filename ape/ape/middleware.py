@@ -4,6 +4,8 @@ from six.moves.urllib.parse import parse_qs
 
 from swift.common.swob import HTTPUnauthorized
 from swift.common.utils import register_swift_info, streq_const_time
+from swift.common.middleware.tempurl import get_tempurl_keys_from_metadata
+from swift.proxy.controllers.base import get_account_info, get_container_info
 
 
 class ApeMiddleware(object):
@@ -19,9 +21,14 @@ class ApeMiddleware(object):
             return self.app(env, start_response)
         if not max_file_size_sig or not max_file_size:
             return self._invalid(env, start_response)
-        key = 'b3968d0207b54ece87cccc06515a89d4'
-        sig = hmac.new(key, '%s' % max_file_size, sha1).hexdigest()
-        if not streq_const_time(max_file_size_sig, sig):
+        keys = self._get_keys(env)
+        has_valid_key = False
+        for key in keys:
+            sig = hmac.new(key, '%s' % max_file_size, sha1).hexdigest()
+            if streq_const_time(max_file_size_sig, sig):
+                has_valid_key = True
+                break
+        if not has_valid_key:
             return self._invalid(env, start_response)
         length = 0
         try:
@@ -52,6 +59,21 @@ class ApeMiddleware(object):
         else:
             body = '401 Unauthorized: max file size\n'
         return HTTPUnauthorized(body=body)(env, start_response)
+
+    def _get_keys(self, env):
+        parts = env['PATH_INFO'].split('/', 4)
+        if len(parts) < 4 or parts[0] or parts[1] != 'v1' or not parts[2] or \
+                not parts[3]:
+            return []
+
+        account_info = get_account_info(env, self.app, swift_source='FP')
+        account_keys = get_tempurl_keys_from_metadata(account_info['meta'])
+
+        container_info = get_container_info(env, self.app, swift_source='FP')
+        container_keys = get_tempurl_keys_from_metadata(
+            container_info.get('meta', []))
+
+        return account_keys + container_keys
 
 
 def filter_factory(global_conf, **local_conf):
