@@ -42,7 +42,7 @@ bash "ape-init" do
   environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})
   code <<-EOF
     source ~/.profile
-    swift post test
+    swift post -r '.r:*' test
     swift post -m 'Temp-URL-Key: b3968d0207b54ece87cccc06515a89d4'
   EOF
 end
