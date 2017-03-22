@@ -42,7 +42,7 @@ bash "ape-init" do
   environment ({'HOME' => '/home/vagrant', 'USER' => 'vagrant'})
   code <<-EOF
     source ~/.profile
-    swift post -r '.r:*' test --meta "Access-Control-Allow-Origin: http://localhost:4200"
+    swift post -r '.r:*' test --meta "Access-Control-Allow-Origin: *"
     swift post -m 'Temp-URL-Key: b3968d0207b54ece87cccc06515a89d4'
   EOF
 end
